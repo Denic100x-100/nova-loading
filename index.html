@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Nova Scar | Mini City RP — загрузка</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* ==========================================================
+     NOVA SCAR — экран загрузки сервера (sv_loadingurl)
+     Палитра как в F4: тёмный navy/teal, акценты cyan + gold
+     ========================================================== */
+  :root{
+    --bg0:#060b14;
+    --bg1:#0b1626;
+    --bg2:#0f2237;
+    --panel:rgba(10,22,38,.78);
+    --line:rgba(80,200,255,.18);
+    --text:#e8f1fa;
+    --muted:#8ea4ba;
+    --cyan:#2fd3ff;
+    --cyan2:#13a6d9;
+    --gold:#f2c94c;
+    --gold2:#c99a1a;
+    --danger:#ff5f6d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 700px at 20% 10%, rgba(47,211,255,.10), transparent 60%),
+      radial-gradient(900px 600px at 85% 90%, rgba(242,201,76,.08), transparent 60%),
+      linear-gradient(160deg,var(--bg0),var(--bg1) 55%,var(--bg2));
+    position:relative;
+  }
+
+  /* фоновая картинка (необязательно) */
+  #bg{
+    position:absolute;inset:0;
+    background-size:cover;background-position:center;
+    opacity:0;transition:opacity 1.2s ease;
+    filter:saturate(.8) brightness(.55);
+  }
+  #bg.on{opacity:1}
+  #bgfade{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(6,11,20,.25) 0%,rgba(6,11,20,.55) 55%,rgba(6,11,20,.92) 100%);
+  }
+
+  /* сетка-подложка */
+  #grid{
+    position:absolute;inset:0;opacity:.35;
+    background-image:
+      linear-gradient(rgba(47,211,255,.06) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(47,211,255,.06) 1px,transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse at center, #000 30%, transparent 75%);
+  }
+
+  /* частицы */
+  #fx{position:absolute;inset:0;pointer-events:none}
+
+  .wrap{
+    position:relative;z-index:2;height:100%;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    padding:40px 56px 36px;
+  }
+
+  /* ---------- шапка ---------- */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .brand{display:flex;align-items:center;gap:18px}
+  .logo{
+    width:72px;height:72px;border-radius:16px;
+    display:grid;place-items:center;
+    background:linear-gradient(145deg,rgba(47,211,255,.22),rgba(242,201,76,.16));
+    border:1px solid var(--line);
+    box-shadow:0 0 0 1px rgba(0,0,0,.4) inset, 0 10px 40px rgba(47,211,255,.15);
+    font-weight:900;font-size:26px;letter-spacing:1px;
+    color:var(--gold);text-shadow:0 0 18px rgba(242,201,76,.5);
+    overflow:hidden;
+  }
+  .logo img{width:100%;height:100%;object-fit:cover;display:none}
+  .logo.has-img img{display:block}
+  .logo.has-img span{display:none}
+  .brand h1{font-size:30px;font-weight:800;letter-spacing:3px;text-transform:uppercase;line-height:1}
+  .brand h1 b{color:var(--cyan);text-shadow:0 0 16px rgba(47,211,255,.5)}
+  .brand p{margin-top:6px;color:var(--muted);font-size:14px;letter-spacing:2px;text-transform:uppercase}
+
+  .player{
+    text-align:right;color:var(--muted);font-size:13px;line-height:1.5
+  }
+  .player b{color:var(--text);font-weight:600}
+  .player .hi{color:var(--gold);font-size:15px;font-weight:700}
+
+  /* ---------- центр ---------- */
+  .mid{
+    display:grid;grid-template-columns:1.15fr .85fr;gap:28px;
+    align-content:center;align-items:stretch;
+    max-width:1280px;width:100%;margin:0 auto;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:24px 26px;
+    backdrop-filter:blur(8px);
+    box-shadow:0 20px 60px rgba(0,0,0,.45);
+    position:relative;overflow:hidden;
+  }
+  .card::before{
+    content:"";position:absolute;left:0;top:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--cyan),var(--gold),transparent);
+    opacity:.8;
+  }
+  .card h2{
+    font-size:12px;letter-spacing:3px;text-transform:uppercase;
+    color:var(--cyan);margin-bottom:14px;font-weight:700
+  }
+
+  .tip{
+    font-size:22px;line-height:1.45;font-weight:500;min-height:96px;
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .tip.fade{opacity:0;transform:translateY(6px)}
+  .tip small{display:block;color:var(--muted);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+
+  .dots{display:flex;gap:6px;margin-top:16px}
+  .dots i{width:18px;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transition:background .3s}
+  .dots i.on{background:var(--gold)}
+
+  .rules{list-style:none;display:grid;gap:9px}
+  .rules li{
+    display:flex;gap:12px;align-items:flex-start;
+    font-size:14.5px;line-height:1.4;color:#d5e2ee
+  }
+  .rules li::before{
+    content:"";flex:none;width:8px;height:8px;margin-top:6px;border-radius:50%;
+    background:var(--gold);box-shadow:0 0 10px rgba(242,201,76,.6)
+  }
+
+  .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .chip{
+    font-size:13px;padding:8px 14px;border-radius:999px;
+    border:1px solid var(--line);background:rgba(47,211,255,.06);color:var(--text)
+  }
+  .chip b{color:var(--cyan);font-weight:700}
+
+  /* ---------- низ: прогресс ---------- */
+  .bottom{max-width:1280px;width:100%;margin:0 auto}
+  .status{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    margin-bottom:10px;gap:20px
+  }
+  .status .st{font-size:16px;font-weight:600}
+  .status .st span{color:var(--cyan)}
+  .status .file{
+    color:var(--muted);font-size:12.5px;font-family:Consolas,monospace;
+    max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+  }
+  .status .pct{font-size:28px;font-weight:800;color:var(--gold);line-height:1;min-width:90px;text-align:right}
+  .status .pct small{font-size:13px;color:var(--muted);font-weight:500;margin-left:6px}
+
+  .bar{
+    height:14px;border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--line);overflow:hidden;position:relative
+  }
+  .bar .fill{
+    height:100%;width:0%;border-radius:999px;
+    background:linear-gradient(90deg,var(--cyan2),var(--cyan) 60%,var(--gold));
+    box-shadow:0 0 18px rgba(47,211,255,.55);
+    transition:width .4s ease;position:relative
+  }
+  .bar .fill::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+    background-size:200% 100%;animation:shine 1.6s linear infinite
+  }
+  @keyframes shine{from{background-position:200% 0}to{background-position:-200% 0}}
+  .bar.indet .fill{width:30%;animation:indet 1.4s ease-in-out infinite}
+  @keyframes indet{0%{margin-left:-30%}100%{margin-left:100%}}
+
+  .meta{
+    display:flex;justify-content:space-between;color:var(--muted);
+    font-size:12px;margin-top:10px;letter-spacing:1px;text-transform:uppercase
+  }
+  .meta b{color:var(--text);font-weight:600;letter-spacing:0;text-transform:none}
+
+  @media (max-width:1100px){
+    .wrap{padding:28px 28px 24px}
+    .mid{grid-template-columns:1fr}
+    .tip{font-size:19px}
+  }
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="bgfade"></div>
+<div id="grid"></div>
+<canvas id="fx"></canvas>
+
+<div class="wrap">
+
+  <!-- Шапка -->
+  <div class="top">
+    <div class="brand">
+      <div class="logo" id="logo"><img id="logoimg" alt=""><span>NS</span></div>
+      <div>
+        <h1>Nova <b>Scar</b></h1>
+        <p id="subtitle">Mini City RP · DarkRP</p>
+      </div>
+    </div>
+    <div class="player">
+      <div class="hi" id="hello">Добро пожаловать!</div>
+      <div>Сервер: <b id="servername">Nova Scar | Mini City RP</b></div>
+      <div>Карта: <b id="mapname">—</b> · Слотов: <b id="maxplayers">—</b></div>
+    </div>
+  </div>
+
+  <!-- Центр -->
+  <div class="mid">
+    <div class="card">
+      <h2>Пока грузится</h2>
+      <div class="tip" id="tip"><small>Подсказка</small>…</div>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="card">
+      <h2>Правила сервера</h2>
+      <ul class="rules" id="rules"></ul>
+      <div class="links" id="links"></div>
+    </div>
+  </div>
+
+  <!-- Прогресс -->
+  <div class="bottom">
+    <div class="status">
+      <div>
+        <div class="st" id="status">Подключение к серверу<span>…</span></div>
+        <div class="file" id="file">&nbsp;</div>
+      </div>
+      <div class="pct"><span id="pct">0%</span><small id="files"></small></div>
+    </div>
+    <div class="bar indet" id="bar"><div class="fill" id="fill"></div></div>
+    <div class="meta">
+      <span>Игрок: <b id="steamid">—</b></span>
+      <span>Режим: <b id="gamemode">—</b></span>
+      <span id="elapsed">00:00</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ==========================================================
+   НАСТРОЙКИ — меняйте здесь
+   ========================================================== */
+var CONFIG = {
+  // Картинка логотипа (положите рядом logo.png) — оставьте "" чтобы показывать «NS»
+  logo: "logo.png",
+  // Фоновая картинка (скриншот карты и т.п.) — "" = без картинки
+  background: "",
+  // Подпись под названием
+  subtitle: "Mini City RP · DarkRP",
+  // Ссылки внизу правой карточки
+  links: [
+    { label: "Discord", value: "discord.gg/XXXXXX" },
+    { label: "VK",      value: "vk.com/XXXXXX" },
+    { label: "Донат",   value: "в меню F4 → Донат" }
+  ],
+  // Подсказки — крутятся по кругу
+  tipInterval: 6000,
+  tips: [
+    "Нажми F4, чтобы выбрать профессию, открыть магазин и донат.",
+    "F2 открывает меню твоей профессии: у мэра, полиции, мафии, шефа и охраны оно своё.",
+    "Банк: личная ячейка, переводы и история — в телефоне (/phone). Снять/положить деньги — у банкира.",
+    "Убил на глазах у камеры, подключённой к государству, — попадёшь в розыск. Маска из F4 спасает на 10 минут.",
+    "Детектив ищет кровь, отпечатки и ДНК. Перчатки — лучший друг преступника.",
+    "Мэр выбирается игроками и управляет казной города. Казна общая и не сгорает при смене мэра.",
+    "Важные профессии (мэр, командир SWAT, банкир, глава мафии) открываются после одобрения администрации.",
+    "В Нелегале 10 рангов — от Чужака до Главы Мафии. Ранги выдают только Глава и его Зам.",
+    "Пиши /911, чтобы вызвать полицию — вызов попадёт в диспетчерскую.",
+    "Номер телефона можно сменить: красивые номера стоят дороже.",
+    "Документы: паспорт, медсправка, лицензии — без них часть профессий недоступна.",
+    "TAB — список игроков. Клик по игроку: профиль Steam, SteamID, жалоба."
+  ],
+  // Правила — правая карточка
+  rules: [
+    "Уважай игроков и администрацию. Оскорбления, травля — бан.",
+    "RDM / RDA запрещены: убийство и арест только по RP-причине.",
+    "NLR: после смерти не возвращайся на место событий 5 минут.",
+    "Не выходи из игры во время RP-ситуации (Combat Log).",
+    "Прописки, рейды и ограбления — только по правилам раздела «Криминал».",
+    "Читы, багоюз и эксплойты — перманентный бан без обсуждения."
+  ]
+};
+
+/* ==========================================================
+   Логика — ниже обычно ничего менять не нужно
+   ========================================================== */
+var totalFiles = 0, neededFiles = 0, startTime = Date.now();
+
+var $ = function(id){ return document.getElementById(id); };
+
+function setProgress(p){
+  var bar = $("bar");
+  if (p === null){ bar.classList.add("indet"); $("pct").textContent = ""; return; }
+  bar.classList.remove("indet");
+  p = Math.max(0, Math.min(100, p));
+  $("fill").style.width = p + "%";
+  $("pct").textContent = Math.round(p) + "%";
+}
+
+/* --- Callbacks, которые дергает Garry's Mod --- */
+function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, language){
+  if (servername) $("servername").textContent = servername;
+  if (mapname)    $("mapname").textContent = mapname;
+  if (maxplayers) $("maxplayers").textContent = maxplayers;
+  if (steamid)    $("steamid").textContent = steamid;
+  if (gamemode)   $("gamemode").textContent = gamemode;
+}
+function SetFilesTotal(total){
+  totalFiles = parseInt(total) || 0;
+  updateFiles();
+}
+function SetFilesNeeded(needed){
+  neededFiles = parseInt(needed) || 0;
+  updateFiles();
+}
+function updateFiles(){
+  if (totalFiles > 0){
+    var done = totalFiles - neededFiles;
+    setProgress(done / totalFiles * 100);
+    $("files").textContent = done + " / " + totalFiles;
+  }
+}
+function DownloadingFile(fileName){
+  $("file").textContent = fileName;
+  $("status").innerHTML = "Загрузка файлов<span>…</span>";
+}
+function SetStatusChanged(status){
+  $("status").innerHTML = status + "<span>…</span>";
+  $("file").innerHTML = "&nbsp;";
+  var s = (status || "").toLowerCase();
+  if (s.indexOf("lua") >= 0 || s.indexOf("spawn") >= 0 || s.indexOf("client info") >= 0) setProgress(100);
+  if (s.indexOf("retriev") >= 0 || s.indexOf("workshop") >= 0) setProgress(null);
+}
+
+/* --- Таймер --- */
+setInterval(function(){
+  var s = Math.floor((Date.now() - startTime) / 1000);
+  var m = Math.floor(s / 60); s = s % 60;
+  $("elapsed").textContent = (m<10?"0":"")+m + ":" + (s<10?"0":"")+s;
+}, 1000);
+
+/* --- Подсказки --- */
+(function(){
+  var i = 0, tips = CONFIG.tips, el = $("tip"), dots = $("dots");
+  tips.forEach(function(_, k){ var d = document.createElement("i"); if(k===0) d.className="on"; dots.appendChild(d); });
+  function show(){
+    el.innerHTML = "<small>Подсказка " + (i+1) + " / " + tips.length + "</small>" + tips[i];
+    var ds = dots.children; for (var k=0;k<ds.length;k++) ds[k].className = (k===i?"on":"");
+  }
+  show();
+  setInterval(function(){
+    el.classList.add("fade");
+    setTimeout(function(){ i = (i+1) % tips.length; show(); el.classList.remove("fade"); }, 350);
+  }, CONFIG.tipInterval);
+})();
+
+/* --- Правила, ссылки, лого, фон --- */
+(function(){
+  CONFIG.rules.forEach(function(r){ var li=document.createElement("li"); li.textContent=r; $("rules").appendChild(li); });
+  CONFIG.links.forEach(function(l){ var c=document.createElement("span"); c.className="chip"; c.innerHTML="<b>"+l.label+"</b> "+l.value; $("links").appendChild(c); });
+  $("subtitle").textContent = CONFIG.subtitle;
+  if (CONFIG.logo){
+    var img = $("logoimg");
+    img.onload = function(){ $("logo").classList.add("has-img"); };
+    img.src = CONFIG.logo;
+  }
+  if (CONFIG.background){
+    var bg = $("bg"), t = new Image();
+    t.onload = function(){ bg.style.backgroundImage="url('"+CONFIG.background+"')"; bg.classList.add("on"); };
+    t.src = CONFIG.background;
+  }
+})();
+
+/* --- Частицы на фоне --- */
+(function(){
+  var c = $("fx"), ctx = c.getContext("2d"), P = [];
+  function resize(){ c.width = innerWidth; c.height = innerHeight; }
+  addEventListener("resize", resize); resize();
+  for (var i=0;i<70;i++) P.push({
+    x:Math.random()*c.width, y:Math.random()*c.height,
+    r:Math.random()*1.8+.4, vx:(Math.random()-.5)*.15, vy:-(Math.random()*.25+.05),
+    gold:Math.random()<.25, a:Math.random()*.5+.2
+  });
+  (function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    P.forEach(function(p){
+      p.x+=p.vx; p.y+=p.vy;
+      if (p.y<-5){ p.y=c.height+5; p.x=Math.random()*c.width; }
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = p.gold ? "rgba(242,201,76,"+p.a+")" : "rgba(47,211,255,"+p.a+")";
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  })();
+})();
+
+/* --- Демо при открытии в обычном браузере (в игре GMod сам вызовет функции выше) --- */
+if (location.search.indexOf("demo") >= 0){
+  GameDetails("Nova Scar | Mini City RP","","rp_downtown_v4c_v2",64,"STEAM_0:1:12345678","darkrp",1,"ru");
+  SetFilesTotal(120); var n=120;
+  var iv=setInterval(function(){ n-=3; if(n<=0){ n=0; clearInterval(iv); SetStatusChanged("Sending client info"); }
+    SetFilesNeeded(n); DownloadingFile("materials/nova/models/mask_"+n+".vtf"); }, 200);
+}
+</script>
+</body>
+</html>
