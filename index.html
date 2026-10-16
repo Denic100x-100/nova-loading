@@ -37,20 +37,20 @@
 
   /* фоновая картинка (необязательно) */
   #bg{
-    position:absolute;inset:0;
+    position:absolute;top:0;right:0;bottom:0;left:0;
     background-size:cover;background-position:center;
     opacity:0;transition:opacity 1.2s ease;
     filter:saturate(.8) brightness(.55);
   }
   #bg.on{opacity:1}
   #bgfade{
-    position:absolute;inset:0;
+    position:absolute;top:0;right:0;bottom:0;left:0;
     background:linear-gradient(180deg,rgba(6,11,20,.25) 0%,rgba(6,11,20,.55) 55%,rgba(6,11,20,.92) 100%);
   }
 
   /* сетка-подложка */
   #grid{
-    position:absolute;inset:0;opacity:.35;
+    position:absolute;top:0;right:0;bottom:0;left:0;opacity:.35;
     background-image:
       linear-gradient(rgba(47,211,255,.06) 1px,transparent 1px),
       linear-gradient(90deg,rgba(47,211,255,.06) 1px,transparent 1px);
@@ -60,7 +60,7 @@
   }
 
   /* частицы */
-  #fx{position:absolute;inset:0;pointer-events:none}
+  #fx{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none}
 
   .wrap{
     position:relative;z-index:2;height:100%;
@@ -175,7 +175,7 @@
     transition:width .4s ease;position:relative
   }
   .bar .fill::after{
-    content:"";position:absolute;inset:0;
+    content:"";position:absolute;top:0;right:0;bottom:0;left:0;
     background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
     background-size:200% 100%;animation:shine 1.6s linear infinite
   }
