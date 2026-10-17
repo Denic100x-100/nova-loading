@@ -121,7 +121,7 @@
   }
 
   .tip{
-    font-size:22px;line-height:1.45;font-weight:500;min-height:96px;
+    font-size:21px;line-height:1.45;font-weight:500;min-height:128px;
     transition:opacity .35s ease, transform .35s ease;
   }
   .tip.fade{opacity:0;transform:translateY(6px)}
@@ -141,12 +141,38 @@
     background:var(--gold);box-shadow:0 0 10px rgba(242,201,76,.6)
   }
 
-  .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-  .chip{
-    font-size:13px;padding:8px 14px;border-radius:999px;
-    border:1px solid var(--line);background:rgba(47,211,255,.06);color:var(--text)
+  .rules-more{margin-top:12px;font-size:13px;color:var(--muted)}
+  .rules-more b{color:var(--cyan);font-weight:600}
+
+  /* ---------- ссылки: сайт + Discord ---------- */
+  .links{display:flex;gap:12px;margin-top:18px}
+  .link{
+    flex:1 1 auto;padding:12px 14px;border-radius:12px;
+    border:1px solid var(--line);background:rgba(47,211,255,.06);
   }
-  .chip b{color:var(--cyan);font-weight:700}
+  .link.gold{border-color:rgba(242,201,76,.35);background:rgba(242,201,76,.07)}
+  .link small{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .link b{display:block;font-size:17px;font-weight:700;color:var(--cyan);white-space:nowrap}
+  .link.gold b{color:var(--gold)}
+
+  /* ---------- клавиши ---------- */
+  .keys-title{
+    margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
+    font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);font-weight:700
+  }
+  .keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 14px;margin-top:12px}
+  .key{display:flex;align-items:center;gap:10px;font-size:13.5px;color:#d5e2ee;min-width:0}
+  .key kbd{
+    flex:none;min-width:54px;text-align:center;padding:4px 8px;border-radius:7px;
+    font-family:Consolas,monospace;font-size:13px;font-weight:700;color:var(--gold);
+    background:rgba(242,201,76,.08);border:1px solid rgba(242,201,76,.3)
+  }
+  .key span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .tip .tag{
+    display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;
+    font-size:11px;letter-spacing:1px;color:var(--bg0);background:var(--cyan);vertical-align:1px
+  }
 
   /* ---------- низ: прогресс ---------- */
   .bottom{max-width:1280px;width:100%;margin:0 auto}
@@ -227,11 +253,14 @@
       <h2>Пока грузится</h2>
       <div class="tip" id="tip"><small>Подсказка</small>…</div>
       <div class="dots" id="dots"></div>
+      <div class="keys-title">Главные клавиши</div>
+      <div class="keys" id="keys"></div>
     </div>
 
     <div class="card">
-      <h2>Правила сервера</h2>
+      <h2>Важно знать</h2>
       <ul class="rules" id="rules"></ul>
+      <div class="rules-more" id="rulesmore"></div>
       <div class="links" id="links"></div>
     </div>
   </div>
@@ -266,37 +295,54 @@ var CONFIG = {
   background: "",
   // Подпись под названием
   subtitle: "Mini City RP · DarkRP",
-  // Ссылки внизу правой карточки
+  // Ссылки внизу правой карточки (в игре по ним не кликают — просто показываем адрес)
   links: [
-    { label: "Discord", value: "discord.gg/XXXXXX" },
-    { label: "VK",      value: "vk.com/XXXXXX" },
-    { label: "Донат",   value: "в меню F4 → Донат" }
+    { label: "Наш сайт", value: "novaskar.com", gold: true },
+    { label: "Discord",  value: "discord.gg/kvW9CYQtdg" }
   ],
-  // Подсказки — крутятся по кругу
-  tipInterval: 6000,
+  // Подсказки — крутятся по кругу, начинаются со случайной
+  // tag — короткая метка справа от «Подсказка N / M»
+  tipInterval: 8000,
   tips: [
-    "Нажми F4, чтобы выбрать профессию, открыть магазин и донат.",
-    "F2 открывает меню твоей профессии: у мэра, полиции, мафии, шефа и охраны оно своё.",
-    "Банк: личная ячейка, переводы и история — в телефоне (/phone). Снять/положить деньги — у банкира.",
-    "Убил на глазах у камеры, подключённой к государству, — попадёшь в розыск. Маска из F4 спасает на 10 минут.",
-    "Детектив ищет кровь, отпечатки и ДНК. Перчатки — лучший друг преступника.",
-    "Мэр выбирается игроками и управляет казной города. Казна общая и не сгорает при смене мэра.",
-    "Важные профессии (мэр, командир SWAT, банкир, глава мафии) открываются после одобрения администрации.",
-    "В Нелегале 10 рангов — от Чужака до Главы Мафии. Ранги выдают только Глава и его Зам.",
-    "Пиши /911, чтобы вызвать полицию — вызов попадёт в диспетчерскую.",
-    "Номер телефона можно сменить: красивые номера стоят дороже.",
-    "Документы: паспорт, медсправка, лицензии — без них часть профессий недоступна.",
-    "TAB — список игроков. Клик по игроку: профиль Steam, SteamID, жалоба."
+    { tag: "Новичку", text: "Первым делом напиши /обучение — пошаговое знакомство с городом: паспорт, жильё, банк, первая работа. За шаги дают награды." },
+    { tag: "Новичку", text: "Пока не пройдено обучение и не наигран 1 час, нельзя переводить деньги, заключать сделки и покупать оружие. Это защита новичков от обмана." },
+    { tag: "Деньги", text: "Нужны деньги на старте? Пиши /работа — подработки курьером, грузчиком, строителем или уборщиком. Чем выше ранг, тем выше оплата." },
+    { tag: "Деньги", text: "Зарплата приходит за каждые 15 активных минут. В AFK и под арестом таймер стоит, а криминальные профессии зарплату не получают." },
+    { tag: "Деньги", text: "Магазин в F4 ничего не продаёт: еда — у повара, лекарства — в больнице, оружие — у оружейника." },
+    { tag: "Оружие", text: "Для любого оружия, даже пистолета, нужна лицензия — без неё его нельзя ни купить, ни поднять. Заявка — /лицензия. Патроны продаются без лицензии." },
+    { tag: "Игроки", text: "Смотришь на игрока и жмёшь F — показать документы, передать деньги, торговать или обменяться предметами." },
+    { tag: "Телефон", text: "Телефон — /phone или ЛКМ с телефоном в руках: звонки, СМС, банк, GPS, документы, заказ еды, охрана, недвижимость и новости." },
+    { tag: "Помощь", text: "Попал в беду? /911 — полиция, /врач — медики, /охрана — частная охрана. Без телефона или с выключенным телефоном /911 не сработает." },
+    { tag: "Жильё", text: "Квартиру или дом снимают и покупают у риелтора. Ключи, замки, аренда и сигнализация — в меню /home." },
+    { tag: "Инвентарь", text: "Инвентарь — клавиша I: 20 ячеек и до 25 кг. Рюкзак добавляет ещё 15 кг." },
+    { tag: "Город", text: "Мэра выбирают сами игроки: /мэрия — выборы и рейтинг. Кандидату нужно 50 часов игры и лицензия на оружие." },
+    { tag: "Криминал", text: "Арестовать могут только того, кто в розыске. Маска скрывает личность на 10 минут — пока она надета, новый розыск не ставится." },
+    { tag: "Криминал", text: "Ограбить игрока можно максимум на 5–10% его денег и не больше 2 000 $. Банк грабят, только когда в городе от 3 полицейских." },
+    { tag: "Прогресс", text: "Дневные и недельные квесты сбрасываются в 00:00 МСК. Идёт Сезон 1 «Первый город» — 50 уровней наград до 31 декабря." },
+    { tag: "Бонус", text: "Привяжи Discord: F4 → Настройки → код, затем /привязать в нашем Discord. За первую привязку — VIP на 7 дней." },
+    { tag: "Бонус", text: "Есть промокод? Вводи его командой /promo." },
+    { tag: "Жалобы", text: "Увидел нарушителя или баг — жалоба прямо из TAB или в F4 → «Жалобы». Администрация видит её сразу." },
+    { tag: "Сайт", text: "Все профессии, донат, правила и клавиши — на сайте novaskar.com." }
   ],
-  // Правила — правая карточка
+  // Клавиши под подсказками
+  keys: [
+    { k: "F4",     t: "Главное меню" },
+    { k: "F2",     t: "Меню профессии" },
+    { k: "F",      t: "Меню игрока" },
+    { k: "I",      t: "Инвентарь" },
+    { k: "TAB",    t: "Игроки и жалобы" },
+    { k: "/phone", t: "Телефон" }
+  ],
+  // «Важно знать» — правая карточка (правила, заложенные в механику)
   rules: [
-    "Уважай игроков и администрацию. Оскорбления, травля — бан.",
-    "RDM / RDA запрещены: убийство и арест только по RP-причине.",
-    "NLR: после смерти не возвращайся на место событий 5 минут.",
-    "Не выходи из игры во время RP-ситуации (Combat Log).",
-    "Прописки, рейды и ограбления — только по правилам раздела «Криминал».",
-    "Читы, багоюз и эксплойты — перманентный бан без обсуждения."
-  ]
+    "Лицензия нужна для любого оружия, включая пистолеты.",
+    "Арестовать можно только того, кто в розыске.",
+    "Q-меню — только для постройки, не больше 30 пропов.",
+    "15 минут бездействия — AFK, профессию нужно выбрать заново в F4.",
+    "3 выговора от мэра или 3 предупреждения в мафии — профессия закрыта на 7 дней.",
+    "Один Discord-аккаунт — один Steam-аккаунт."
+  ],
+  rulesMore: "Все правила и законы города: <b>novaskar.com/rules</b>"
 };
 
 /* ==========================================================
@@ -359,10 +405,14 @@ setInterval(function(){
 
 /* --- Подсказки --- */
 (function(){
-  var i = 0, tips = CONFIG.tips, el = $("tip"), dots = $("dots");
-  tips.forEach(function(_, k){ var d = document.createElement("i"); if(k===0) d.className="on"; dots.appendChild(d); });
+  var tips = CONFIG.tips, el = $("tip"), dots = $("dots");
+  var i = Math.floor(Math.random() * tips.length);
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  tips.forEach(function(){ dots.appendChild(document.createElement("i")); });
   function show(){
-    el.innerHTML = "<small>Подсказка " + (i+1) + " / " + tips.length + "</small>" + tips[i];
+    var t = tips[i], text = (typeof t === "string") ? t : t.text, tag = (typeof t === "string") ? "" : t.tag;
+    el.innerHTML = "<small>Подсказка " + (i+1) + " / " + tips.length +
+      (tag ? '<span class="tag">' + esc(tag) + '</span>' : "") + "</small>" + esc(text);
     var ds = dots.children; for (var k=0;k<ds.length;k++) ds[k].className = (k===i?"on":"");
   }
   show();
@@ -375,7 +425,19 @@ setInterval(function(){
 /* --- Правила, ссылки, лого, фон --- */
 (function(){
   CONFIG.rules.forEach(function(r){ var li=document.createElement("li"); li.textContent=r; $("rules").appendChild(li); });
-  CONFIG.links.forEach(function(l){ var c=document.createElement("span"); c.className="chip"; c.innerHTML="<b>"+l.label+"</b> "+l.value; $("links").appendChild(c); });
+  if (CONFIG.rulesMore) $("rulesmore").innerHTML = CONFIG.rulesMore;
+  CONFIG.links.forEach(function(l){
+    var c=document.createElement("div"); c.className="link"+(l.gold?" gold":"");
+    var s=document.createElement("small"); s.textContent=l.label;
+    var b=document.createElement("b"); b.textContent=l.value;
+    c.appendChild(s); c.appendChild(b); $("links").appendChild(c);
+  });
+  (CONFIG.keys || []).forEach(function(k){
+    var d=document.createElement("div"); d.className="key";
+    var kb=document.createElement("kbd"); kb.textContent=k.k;
+    var sp=document.createElement("span"); sp.textContent=k.t;
+    d.appendChild(kb); d.appendChild(sp); $("keys").appendChild(d);
+  });
   $("subtitle").textContent = CONFIG.subtitle;
   if (CONFIG.logo){
     var img = $("logoimg");
